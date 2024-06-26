@@ -47,7 +47,7 @@ def test_resolve_missing_indicies():
     assert set(names_1).issubset(th_1.dataframe.index.names)
 
 
-def test_statsframe(rajaperf_seq_O3_1M_cali):
+def test_statsframe(rajaperf_seq_O3_1M_cali, intersection, fill_perfdata):
     def _test_multiindex():
         """Test statsframe when headers are multiindexed."""
         th1 = Thicket.from_caliperreader(rajaperf_seq_O3_1M_cali[0], disable_tqdm=True)
@@ -59,7 +59,12 @@ def test_statsframe(rajaperf_seq_O3_1M_cali):
 
     _test_multiindex()
 
-    th = Thicket.from_caliperreader(rajaperf_seq_O3_1M_cali[-1], disable_tqdm=True)
+    th = Thicket.from_caliperreader(
+        rajaperf_seq_O3_1M_cali[-1],
+        intersection=intersection,
+        fill_perfdata=fill_perfdata,
+        disable_tqdm=True,
+    )
 
     # Arbitrary value insertion in aggregated statistics table.
     th.statsframe.dataframe["test"] = 1
@@ -81,10 +86,15 @@ def test_statsframe(rajaperf_seq_O3_1M_cali):
 
 
 def test_metadata_columns_to_perfdata(
-    rajaperf_cuda_block128_1M_cali, rajaperf_seq_O3_1M_cali
+    rajaperf_cuda_block128_1M_cali, 
+    rajaperf_seq_O3_1M_cali,
+    intersection, 
+    fill_perfdata
 ):
     tk = Thicket.from_caliperreader(
         [rajaperf_cuda_block128_1M_cali[0], rajaperf_seq_O3_1M_cali[0]],
+        intersection=intersection,
+        fill_perfdata=fill_perfdata,
         disable_tqdm=True,
     )
     tkc1 = tk.deepcopy()
@@ -196,9 +206,14 @@ def test_thicketize_graphframe(rajaperf_seq_O3_1M_cali):
     assert ht1.dataframe.equals(th1.dataframe)
 
 
-def test_unique_metadata_base_cuda(rajaperf_cuda_block128_1M_cali):
+def test_unique_metadata_base_cuda(
+    rajaperf_cuda_block128_1M_cali, intersection, fill_perfdata
+):
     t_ens = Thicket.from_caliperreader(
-        rajaperf_cuda_block128_1M_cali, disable_tqdm=True
+        rajaperf_cuda_block128_1M_cali,
+        intersection=intersection,
+        fill_perfdata=fill_perfdata,
+        disable_tqdm=True,
     )
 
     res = t_ens.get_unique_metadata()
