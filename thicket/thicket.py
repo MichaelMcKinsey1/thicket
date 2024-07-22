@@ -579,6 +579,9 @@ class Thicket(GraphFrame):
             else:
                 return col[0]
 
+        if not isinstance(chosen_metrics, list):
+            raise TypeError(f"chosen_metrics ({type(chosen_metrics)}) must be a list")
+
         # Remove duplicate metrics in chosen_metrics if the user provided duplicates
         unique_metrics = list(set(chosen_metrics))
         if len(unique_metrics) != len(chosen_metrics):
