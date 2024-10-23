@@ -3,11 +3,12 @@
 #
 # SPDX-License-Identifier: MIT
 
-from thicket.helpers import (
+from thicket.ncu import (
     _match_call_trace_regex,
     _match_kernel_str_to_cali,
     _multi_match_fallback_similarity,
 )
+
 from hatchet.node import Node
 
 
