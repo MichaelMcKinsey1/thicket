@@ -173,7 +173,9 @@ def _powerset_from_tuple(tup):
     return {x[0] if len(x) == 1 else x for x in pset}
 
 
-def _match_call_trace_regex(kernel_call_trace, demangled_kernel_name, debug, action=None):
+def _match_call_trace_regex(
+    kernel_call_trace, demangled_kernel_name, debug, action=None
+):
     """Use the NCU call trace to regex match the kernel name from the demangled
     kernel string. Also modifies the demangled kernel name in certain cases. Returns
     the matched kernel string, if match is possible.
