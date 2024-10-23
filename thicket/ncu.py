@@ -4,13 +4,16 @@
 # SPDX-License-Identifier: MIT
 
 from collections import defaultdict
-from difflib import SequenceMatcher
-import re
 
 from hatchet import QueryMatcher
 import pandas as pd
 from tqdm import tqdm
 
+from .helpers import (
+    _match_call_trace_regex,
+    _match_kernel_str_to_cali,
+    _multi_match_fallback_similarity,
+)
 import ncu_report
 
 
@@ -147,49 +150,17 @@ class NCUReader:
                     else:
                         call_trace_found = True
 
-                        # Call trace with last element removed
-                        # (last elem usually not useful for matching)
-                        temp_call_trace = kernel_call_trace[:-1]
-                        # Special case to match "cub" kernels
-                        if "cub" in demangled_kernel_name:
-                            call_trace_str = "cub"
-                            # Replace substrings that may cause mismatch
-                            demangled_kernel_name = demangled_kernel_name.replace(
-                                "(bool)1", "true"
-                            )
-                            demangled_kernel_name = demangled_kernel_name.replace(
-                                "(bool)0", "false"
-                            )
-                        else:
-                            call_trace_str = "::".join(
-                                [s.lower() for s in temp_call_trace]
-                            )
-                        if debug:
-                            print(f"\tKernel Call Trace: {kernel_call_trace}")
-                            print(action.name())
-
-                        # Pattern ends with ":" if RAJA_CUDA, "<" if Base_CUDA
-                        kernel_pattern = rf"{call_trace_str}::(\w+)[<:]"
-                        kernel_match = re.search(kernel_pattern, demangled_kernel_name)
-                        # Found match
-                        if kernel_match:
-                            kernel_str = kernel_match.group(1)
-                        else:
-                            if debug:
-                                print(f"\tCould not match {demangled_kernel_name}")
-                            continue
-
-                        # RAJA_CUDA/Lambda_CUDA variant
-                        instance_pattern = r"instance (\d+)"
-                        instance_match = re.findall(
-                            instance_pattern, demangled_kernel_name
+                        (
+                            kernel_str,
+                            demangled_kernel_name,
+                            instance_num,
+                            instance_exists,
+                            skip_kernel,
+                        ) = _match_call_trace_regex(
+                            kernel_call_trace, demangled_kernel_name, debug, action
                         )
-                        if instance_match:
-                            instance_num = instance_match[-1]
-                            instance_exists = True
-                        else:
-                            # Base_CUDA variant
-                            instance_exists = False
+                        if skip_kernel:
+                            continue
 
                         # Add kernel name to the end of the trace tuple
                         kernel_call_trace.append(kernel_str)
@@ -207,29 +178,17 @@ class NCUReader:
                             # Apply the query
                             node_set = query.apply(thicket)
                             # Find the correct node. This may also get the parent so we take the last one
-                            matched_nodes = [
-                                n
-                                for n in node_set
-                                if kernel_str in n.frame["name"]
-                                and (
-                                    f"#{instance_num}" in n.frame["name"]
-                                    if raja_lambda_cuda and instance_exists
-                                    else True
-                                )
-                            ]
+                            matched_nodes = _match_kernel_str_to_cali(
+                                node_set,
+                                kernel_str,
+                                instance_num,
+                                raja_lambda_cuda,
+                                instance_exists,
+                            )
                             if len(matched_nodes) > 1:
-                                # Attempt to match using similarity
-                                match_dict = {}
-                                for node in matched_nodes:
-                                    match_ratio = SequenceMatcher(
-                                        None, node.frame["name"], demangled_kernel_name
-                                    ).ratio()
-                                    match_dict[node] = match_ratio
-                                matched_node = max(match_dict, key=match_dict.get)
-                                if debug:
-                                    print(
-                                        f"NOTICE: Multiple matches ({len(matched_nodes)}) found for kernel. Matching using string similarity..."
-                                    )
+                                matched_node = _multi_match_fallback_similarity(
+                                    matched_nodes, demangled_kernel_name, debug
+                                )
                             elif len(matched_nodes) == 1:
                                 matched_node = matched_nodes[0]
                             else:
