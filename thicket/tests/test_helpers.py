@@ -9,44 +9,60 @@ from hatchet.node import Node
 def test_match_call_trace_regex():
 
     # Base_CUDA variant
-    kernel_str, demangled_kernel_name, instance_num, instance_exists, skip_kernel = (
-        _match_call_trace_regex(
-            ["RAJAPerf", "Basic", "Basic_DAXPY"],
-            "void rajaperf::basic::daxpy<(unsigned long)128>(double *, double *, double, long)",
-            debug=False,
-        )
+    (
+        kernel_str,
+        demangled_kernel_name,
+        instance_num,
+        instance_exists,
+        skip_kernel,
+    ) = _match_call_trace_regex(
+        ["RAJAPerf", "Basic", "Basic_DAXPY"],
+        "void rajaperf::basic::daxpy<(unsigned long)128>(double *, double *, double, long)",
+        debug=False,
     )
     assert kernel_str == "daxpy"
 
     # lambda_CUDA variant
-    kernel_str, demangled_kernel_name, instance_num, instance_exists, skip_kernel = (
-        _match_call_trace_regex(
-            ["RAJAPerf", "Polybench", "Polybench_ATAX"],
-            "void rajaperf::polybench::poly_atax_lam<(unsigned long)128, void rajaperf::polybench::POLYBENCH_ATAX::runCudaVariantImpl<(unsigned long)128>(rajaperf::VariantID)::[lambda(long) (instance 2)]>(long, T2)",
-            debug=False,
-        )
+    (
+        kernel_str,
+        demangled_kernel_name,
+        instance_num,
+        instance_exists,
+        skip_kernel,
+    ) = _match_call_trace_regex(
+        ["RAJAPerf", "Polybench", "Polybench_ATAX"],
+        "void rajaperf::polybench::poly_atax_lam<(unsigned long)128, void rajaperf::polybench::POLYBENCH_ATAX::runCudaVariantImpl<(unsigned long)128>(rajaperf::VariantID)::[lambda(long) (instance 2)]>(long, T2)",
+        debug=False,
     )
     assert kernel_str == "poly_atax_lam"
 
     # RAJA_CUDA variant
-    kernel_str, demangled_kernel_name, instance_num, instance_exists, skip_kernel = (
-        _match_call_trace_regex(
-            ["RAJAPerf", "Apps", "Apps_ENERGY"],
-            "void RAJA::policy::cuda::impl::forall_cuda_kernel<RAJA::policy::cuda::cuda_exec_explicit<RAJA::iteration_mapping::Direct, RAJA::cuda::IndexGlobal<(RAJA::named_dim)0, (int)128, (int)0>, RAJA::cuda::MaxOccupancyConcretizer, (unsigned long)1, (bool)1>, (unsigned long)1, RAJA::Iterators::numeric_iterator<long, long, long *>, void rajaperf::apps::ENERGY::runCudaVariantImpl<(unsigned long)128>(rajaperf::VariantID)::[lambda() (instance 1)]::operator ()() const::[lambda(long) (instance 4)], long, RAJA::iteration_mapping::Direct, RAJA::cuda::IndexGlobal<(RAJA::named_dim)0, (int)128, (int)0>, (unsigned long)128>(T4, T3, T5)",
-            debug=False,
-        )
+    (
+        kernel_str,
+        demangled_kernel_name,
+        instance_num,
+        instance_exists,
+        skip_kernel,
+    ) = _match_call_trace_regex(
+        ["RAJAPerf", "Apps", "Apps_ENERGY"],
+        "void RAJA::policy::cuda::impl::forall_cuda_kernel<RAJA::policy::cuda::cuda_exec_explicit<RAJA::iteration_mapping::Direct, RAJA::cuda::IndexGlobal<(RAJA::named_dim)0, (int)128, (int)0>, RAJA::cuda::MaxOccupancyConcretizer, (unsigned long)1, (bool)1>, (unsigned long)1, RAJA::Iterators::numeric_iterator<long, long, long *>, void rajaperf::apps::ENERGY::runCudaVariantImpl<(unsigned long)128>(rajaperf::VariantID)::[lambda() (instance 1)]::operator ()() const::[lambda(long) (instance 4)], long, RAJA::iteration_mapping::Direct, RAJA::cuda::IndexGlobal<(RAJA::named_dim)0, (int)128, (int)0>, (unsigned long)128>(T4, T3, T5)",
+        debug=False,
     )
     assert kernel_str == "ENERGY"
 
 
 def test_match_kernel_str_to_cali():
     # RAJA_CUDA variant
-    kernel_str, demangled_kernel_name, instance_num, instance_exists, skip_kernel = (
-        _match_call_trace_regex(
-            ["RAJAPerf", "Apps", "Apps_ENERGY"],
-            "void RAJA::policy::cuda::impl::forall_cuda_kernel<RAJA::policy::cuda::cuda_exec_explicit<RAJA::iteration_mapping::Direct, RAJA::cuda::IndexGlobal<(RAJA::named_dim)0, (int)128, (int)0>, RAJA::cuda::MaxOccupancyConcretizer, (unsigned long)1, (bool)1>, (unsigned long)1, RAJA::Iterators::numeric_iterator<long, long, long *>, void rajaperf::apps::ENERGY::runCudaVariantImpl<(unsigned long)128>(rajaperf::VariantID)::[lambda() (instance 1)]::operator ()() const::[lambda(long) (instance 4)], long, RAJA::iteration_mapping::Direct, RAJA::cuda::IndexGlobal<(RAJA::named_dim)0, (int)128, (int)0>, (unsigned long)128>(T4, T3, T5)",
-            debug=False,
-        )
+    (
+        kernel_str,
+        demangled_kernel_name,
+        instance_num,
+        instance_exists,
+        skip_kernel,
+    ) = _match_call_trace_regex(
+        ["RAJAPerf", "Apps", "Apps_ENERGY"],
+        "void RAJA::policy::cuda::impl::forall_cuda_kernel<RAJA::policy::cuda::cuda_exec_explicit<RAJA::iteration_mapping::Direct, RAJA::cuda::IndexGlobal<(RAJA::named_dim)0, (int)128, (int)0>, RAJA::cuda::MaxOccupancyConcretizer, (unsigned long)1, (bool)1>, (unsigned long)1, RAJA::Iterators::numeric_iterator<long, long, long *>, void rajaperf::apps::ENERGY::runCudaVariantImpl<(unsigned long)128>(rajaperf::VariantID)::[lambda() (instance 1)]::operator ()() const::[lambda(long) (instance 4)], long, RAJA::iteration_mapping::Direct, RAJA::cuda::IndexGlobal<(RAJA::named_dim)0, (int)128, (int)0>, (unsigned long)128>(T4, T3, T5)",
+        debug=False,
     )
     # Test multi-instance (for energy4)
     node_set = [
@@ -116,12 +132,16 @@ def test_match_kernel_str_to_cali():
 def test_multi_match_fallback_similarity():
     # CUB kernels
     demangled_kernel_name = "void cub::DeviceRadixSortUpsweepKernel<cub::DeviceRadixSortPolicy<double, cub::NullType, int>::Policy700, (bool)1, (bool)0, double, int>(const T4 *, T5 *, T5, int, int, cub::GridEvenShare<T5>)"
-    kernel_str, demangled_kernel_name, instance_num, instance_exists, skip_kernel = (
-        _match_call_trace_regex(
-            ["RAJAPerf", "Algorithm", "Algorithm_SORT", "DeviceRadixSortUpsweepKernel"],
-            demangled_kernel_name=demangled_kernel_name,
-            debug=False,
-        )
+    (
+        kernel_str,
+        demangled_kernel_name,
+        instance_num,
+        instance_exists,
+        skip_kernel,
+    ) = _match_call_trace_regex(
+        ["RAJAPerf", "Algorithm", "Algorithm_SORT", "DeviceRadixSortUpsweepKernel"],
+        demangled_kernel_name=demangled_kernel_name,
+        debug=False,
     )
     node_set = [
         Node({"name": "RAJAPerf", "type": "function"}),
