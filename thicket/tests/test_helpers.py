@@ -1,3 +1,8 @@
+# Copyright 2022 Lawrence Livermore National Security, LLC and other
+# Thicket Project Developers. See the top-level LICENSE file for details.
+#
+# SPDX-License-Identifier: MIT
+
 from thicket.helpers import (
     _match_call_trace_regex,
     _match_kernel_str_to_cali,
