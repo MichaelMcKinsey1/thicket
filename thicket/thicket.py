@@ -623,7 +623,7 @@ class Thicket(GraphFrame):
         if chosen_metrics:
             ncu_df = ncu_df[chosen_metrics]
 
-        # Overwrite check
+        # Overwrite check. We can't check earlier, if chosen_metrics is None, as we haven't read the ncu file yet.
         dupe_cols = [col for col in ncu_df.columns if col in self.dataframe.columns]
         if overwrite:
             self.dataframe = self.dataframe.drop(columns=dupe_cols)
