@@ -86,10 +86,7 @@ def test_statsframe(rajaperf_seq_O3_1M_cali, intersection, fill_perfdata):
 
 
 def test_metadata_columns_to_perfdata(
-    rajaperf_cuda_block128_1M_cali, 
-    rajaperf_seq_O3_1M_cali,
-    intersection, 
-    fill_perfdata
+    rajaperf_cuda_block128_1M_cali, rajaperf_seq_O3_1M_cali, intersection, fill_perfdata
 ):
     tk = Thicket.from_caliperreader(
         [rajaperf_cuda_block128_1M_cali[0], rajaperf_seq_O3_1M_cali[0]],
