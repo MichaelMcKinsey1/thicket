@@ -161,13 +161,14 @@ def _build_query_from_ncu_trace(kernel_call_trace):
 class NCUReader:
     """Object to interface and pull NCU report data into Thicket"""
 
-    def _read_ncu(self, thicket, ncu_report_mapping, debug=False):
+    def _read_ncu(self, thicket, ncu_report_mapping, debug=False, disable_tqdm=False):
         """Read NCU report files and return dictionary of data.
 
         Arguments:
             thicket (Thicket): thicket object to add ncu metrics to
             ncu_report_mapping (dict): mapping from NCU report file to profile
             debug (bool): whether to print debug statements
+            disable_tqdm (bool): whether to disable tqdm progress bar
 
         Returns:
             data_dict (dict): dictionary of NCU data where key is tuple, (node, profile), mapping to list of dictionaries for per-rep data that is aggregated down to one dictionary.
@@ -234,7 +235,7 @@ class NCUReader:
                 }
 
                 # Query action in range
-                pbar = tqdm(range)
+                pbar = tqdm(range, disable=disable_tqdm)
                 for i, action in enumerate(pbar):
                     pbar.set_description(f"Processing action {i}/{len(range)}")
                     if debug:
