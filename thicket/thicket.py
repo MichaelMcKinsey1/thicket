@@ -1549,50 +1549,50 @@ class Thicket(GraphFrame):
         Returns:
             (list): list of (sub)thickets
         """
-        if not self.metadata.empty:
-            # group metadata table by unique values in a column
-            sub_metadataframes = self.metadata.groupby(by, dropna=False)
-
-            # dictionary of sub_thickets
-            sub_thickets = {}
-
-            # for all unique groups of metadata table
-            for key, df in sub_metadataframes:
-                # create a thicket copy
-                sub_thicket = self.deepcopy()
-
-                # return unique group as the metadata table
-                sub_thicket.metadata = df
-
-                # find profiles in current unique group and filter performance data
-                # table
-                profile_id = df.index.values.tolist()
-                sub_thicket.dataframe = sub_thicket.dataframe[
-                    sub_thicket.dataframe.index.get_level_values("profile").isin(
-                        profile_id
-                    )
-                ]
-
-                # clear the aggregated statistics table for current unique group
-                sub_thicket.statsframe.dataframe = helpers._new_statsframe_df(
-                    sub_thicket.dataframe
-                )
-
-                # If fill_perfdata is False, may need to squash
-                if len(sub_thicket.graph) != len(
-                    sub_thicket.dataframe.index.get_level_values("node").unique()
-                ):
-                    sub_thicket = sub_thicket.squash()
-
-                sub_thicket._sync_profile_components(sub_thicket.metadata)
-                validate_profile(sub_thicket)
-
-                # add thicket to dictionary
-                sub_thickets[key] = sub_thicket
-        else:
+        if self.metadata.empty:
             raise EmptyMetadataTable(
                 "The provided Thicket object has an empty metadata table."
             )
+        
+        # group metadata table by unique values in a column
+        sub_metadataframes = self.metadata.groupby(by, dropna=False)
+
+        # dictionary of sub_thickets
+        sub_thickets = {}
+
+        # for all unique groups of metadata table
+        for key, df in sub_metadataframes:
+            # create a thicket copy
+            sub_thicket = self.deepcopy()
+
+            # return unique group as the metadata table
+            sub_thicket.metadata = df
+
+            # find profiles in current unique group and filter performance data
+            # table
+            profile_id = df.index.values.tolist()
+            sub_thicket.dataframe = sub_thicket.dataframe[
+                sub_thicket.dataframe.index.get_level_values("profile").isin(
+                    profile_id
+                )
+            ]
+
+            # clear the aggregated statistics table for current unique group
+            sub_thicket.statsframe.dataframe = helpers._new_statsframe_df(
+                sub_thicket.dataframe
+            )
+
+            # If fill_perfdata is False, may need to squash
+            if len(sub_thicket.graph) != len(
+                sub_thicket.dataframe.index.get_level_values("node").unique()
+            ):
+                sub_thicket = sub_thicket.squash()
+
+            sub_thicket._sync_profile_components(sub_thicket.metadata)
+            validate_profile(sub_thicket)
+
+            # add thicket to dictionary
+            sub_thickets[key] = sub_thicket
 
         return GroupBy(by, sub_thickets)
 
