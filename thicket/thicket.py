@@ -1578,11 +1578,17 @@ class Thicket(GraphFrame):
                     sub_thicket.dataframe
                 )
 
-                # add thicket to dictionary
-                sub_thickets[key] = sub_thicket
+                # If fill_perfdata is False, may need to squash
+                if len(sub_thicket.graph) != len(
+                    sub_thicket.dataframe.index.get_level_values("node").unique()
+                ):
+                    sub_thicket = sub_thicket.squash()
 
                 sub_thicket._sync_profile_components(sub_thicket.metadata)
                 validate_profile(sub_thicket)
+
+                # add thicket to dictionary
+                sub_thickets[key] = sub_thicket
         else:
             raise EmptyMetadataTable(
                 "The provided Thicket object has an empty metadata table."
