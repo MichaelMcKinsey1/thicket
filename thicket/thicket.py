@@ -1553,7 +1553,7 @@ class Thicket(GraphFrame):
             raise EmptyMetadataTable(
                 "The provided Thicket object has an empty metadata table."
             )
-        
+
         # group metadata table by unique values in a column
         sub_metadataframes = self.metadata.groupby(by, dropna=False)
 
@@ -1572,9 +1572,7 @@ class Thicket(GraphFrame):
             # table
             profile_id = df.index.values.tolist()
             sub_thicket.dataframe = sub_thicket.dataframe[
-                sub_thicket.dataframe.index.get_level_values("profile").isin(
-                    profile_id
-                )
+                sub_thicket.dataframe.index.get_level_values("profile").isin(profile_id)
             ]
 
             # clear the aggregated statistics table for current unique group
