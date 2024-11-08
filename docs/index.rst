@@ -58,6 +58,10 @@ If you encounter bugs while using thicket, you can report them by opening an iss
    stats-functions.ipynb
    query_language.ipynb
    groupby_aggregate.ipynb
+   nsight_compute.ipynb
+   composing_parallel_sorting_data.ipynb
+   modeling_parallel_sorting_data.ipynb
+   tma_speedup_clustering.ipynb
    vis_docs
 
 .. toctree::
