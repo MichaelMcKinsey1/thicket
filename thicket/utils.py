@@ -75,7 +75,9 @@ def validate_dataframe(df):
             counts = Counter(inner_idx_values)
             duplicates = [item for item, count in counts.items() if count > 1]
             if len(duplicates) > 0:
-                raise DuplicateIndexError(f"Duplicate indices found in DataFrame index.\n\t{duplicates}")
+                raise DuplicateIndexError(
+                    f"Duplicate indices found in DataFrame index.\n\t{duplicates}"
+                )
 
     def _check_missing_hnid(df):
         """Check if there are missing hatchet nid's."""
