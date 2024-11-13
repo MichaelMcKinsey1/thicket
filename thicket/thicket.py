@@ -157,7 +157,7 @@ class Thicket(GraphFrame):
         return s
 
     @staticmethod
-    def profile_hasher(obj, hex_len=8):
+    def profile_hasher(obj, hex_len=11):
         """Convert an object to a profile hash for Thicket.
 
         Arguments:
