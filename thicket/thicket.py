@@ -1727,23 +1727,34 @@ class Thicket(GraphFrame):
         # Check Thicket state
         validate_nodes(self)
 
-    def get_node(self, name):
+    def get_node(self, name, which="first"):
         """Get a node object in the Thicket by its Node.frame['name']. If more than one
-        node has the same name, a list of nodes is returned.
+        node has the same name, use the 'which' argument to specify which node to return.
 
         Arguments:
             name (str): name of the node (Node.frame['name']).
+            which (str, optional): which node to return if multiple nodes have the same
+            name. Options are "first", "last", or "all". Defaults to "first".
 
         Returns:
             (Node or list(Node)): Node object with the given name or list of Node objects
             with the given name.
         """
-        node = [n for n in self.graph.traverse() if n.frame["name"] == name]
+        nodes = [n for n in self.graph.traverse() if n.frame["name"] == name]
 
-        if len(node) == 0:
+        if len(nodes) == 0:
             raise KeyError(f'Node with name "{name}" not found.')
 
-        return node[0] if len(node) == 1 else node
+        if len(nodes) == 1 or which == "first":
+            return nodes[0]
+        elif which == "last":
+            return nodes[-1]
+        elif which == "all":
+            return nodes
+        else:
+            raise ValueError(
+                'Invalid value for "which". Options are "first", "last", or "all".'
+            )
 
     def _sync_profile_components(self, component):
         """Synchronize the Performance DataFrame, Metadata Dataframe, profile and
