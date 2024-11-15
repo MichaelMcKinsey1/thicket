@@ -95,7 +95,7 @@ def test_error_file(mpi_scaling_cali, data_dir):
 
     # Create a temporarily empty file
     empty_file_path = os.path.join(f"{data_dir}/mpi_scaling_cali", "empty.cali")
-    with open(empty_file_path, "w") as temp_file:
+    with open(empty_file_path, "w"):
         pass  # This creates an empty file
 
     # list
