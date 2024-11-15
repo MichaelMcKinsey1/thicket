@@ -437,20 +437,22 @@ class Thicket(GraphFrame):
             pbar = tqdm.tqdm(obj, disable=disable_tqdm)
             for file in pbar:
                 pbar.set_description(pbar_desc)
-                ens_list.append(
-                    Thicket.thicketize_graphframe(
-                        func(file, *extra_args, **kwargs), file
-                    )
-                )
+                try:
+                    gf = func(file, *extra_args, **kwargs)
+                except Exception as e:
+                    raise Exception(f"Failed to read file: {file}") from e
+                ens_list.append(Thicket.thicketize_graphframe(gf, file))
         # if directory of files
         elif os.path.isdir(obj):
             pbar = tqdm.tqdm(os.listdir(obj), disable=disable_tqdm)
             for file in pbar:
                 pbar.set_description(pbar_desc)
                 f = os.path.join(obj, file)
-                ens_list.append(
-                    Thicket.thicketize_graphframe(func(f, *extra_args, **kwargs), f)
-                )
+                try:
+                    gf = func(f, *extra_args, **kwargs)
+                except Exception as e:
+                    raise Exception(f"Failed to read file: {f}") from e
+                ens_list.append(Thicket.thicketize_graphframe(gf, f))
         # if single file
         elif os.path.isfile(obj):
             return Thicket.thicketize_graphframe(func(*args, **kwargs), args[0])
