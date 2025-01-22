@@ -19,8 +19,8 @@ def check_identity(
             if equal:
                 assert (
                     obj1.__dict__[key] is obj2.__dict__[key]
-                ), "{} should have the same identy".format(key)
+                ), "{} should have the same identity".format(key)
             else:
                 assert (
                     obj1.__dict__[key] is not obj2.__dict__[key]
-                ), "{} should not have the same identy".format(key)
+                ), "{} should not have the same identity".format(key)
