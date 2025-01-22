@@ -157,7 +157,7 @@ class Ensemble:
                     thickets_cp[i].metadata.reset_index(drop=True, inplace=True)
             if metadata_key is None:
                 for i in range(len(thickets_cp)):
-                    thickets_cp[i].metadata.index.set_names("profile", inplace=True)
+                    thickets_cp[i].metadata.index.set_names(thickets_cp[i].profile_idx_name, inplace=True)
             else:
                 for i in range(len(thickets_cp)):
                     if metadata_key != inner_idx:
@@ -228,7 +228,7 @@ class Ensemble:
                         "new_profiles", append=True, inplace=True
                     )
                     thickets_cp[i].dataframe.index.rename(
-                        "profile", level="new_profiles", inplace=True
+                        thickets_cp[i].profile_idx_name, level="new_profiles", inplace=True
                     )
             else:  # Change second-level index to be from metadata's "metadata_key" column
                 for i in range(len(thickets_cp)):

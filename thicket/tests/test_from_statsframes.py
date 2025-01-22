@@ -30,7 +30,7 @@ def test_single_trial(mpi_scaling_cali, intersection, fill_perfdata):
     tk = th.Thicket.from_statsframes(th_list, disable_tqdm=True)
 
     # Check level values
-    assert set(tk.dataframe.index.get_level_values("profile")) == {
+    assert set(tk.dataframe.index.get_level_values(tk.profile_idx_name)) == {
         0,
         1,
         2,

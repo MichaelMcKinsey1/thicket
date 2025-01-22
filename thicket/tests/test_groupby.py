@@ -24,7 +24,7 @@ def check_groupby(th, columns_values):
         th_list = list(th.groupby(column).values())
 
         for thicket in th_list:
-            check_identity(th, thicket, "default_metric")
+            check_identity(th, thicket, ["default_metric", "profile_idx_name"])
 
         # inspect all unique values in the use case
         for itr, uni_val in enumerate(unique_values):
