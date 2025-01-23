@@ -219,9 +219,7 @@ def test_unique_metadata_base_cuda(
     assert res["tuning"] == ["block_128"]
 
 
-def test_different_profile_idx_name(
-    rajaperf_seq_O3_1M_cali, intersection, fill_perfdata
-):
+def test_different_profile_idx_name():
     th = Thicket(
         graph=ht.graph.Graph(roots=[]),
         dataframe=pd.DataFrame(
