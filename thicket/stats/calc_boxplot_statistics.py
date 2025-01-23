@@ -86,7 +86,9 @@ def calc_boxplot_statistics(thicket, columns=[], quartiles=[0.25, 0.5, 0.75], **
                 for i in range(0, len(values)):
                     if values[i] > upper_fence or values[i] < lower_fence:
                         profile.append(
-                            thicket.dataframe.loc[node].reset_index()[thicket.profile_idx_name][i]
+                            thicket.dataframe.loc[node].reset_index()[
+                                thicket.profile_idx_name
+                            ][i]
                         )
                     else:
                         continue
@@ -146,7 +148,9 @@ def calc_boxplot_statistics(thicket, columns=[], quartiles=[0.25, 0.5, 0.75], **
                 for i in range(0, len(values)):
                     if values[i] > upper_fence or values[i] < lower_fence:
                         profile.append(
-                            thicket.dataframe[idx].loc[node].reset_index()[thicket.profile_idx_name][i]
+                            thicket.dataframe[idx]
+                            .loc[node]
+                            .reset_index()[thicket.profile_idx_name][i]
                         )
                     else:
                         continue

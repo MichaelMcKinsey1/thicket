@@ -157,7 +157,9 @@ class Ensemble:
                     thickets_cp[i].metadata.reset_index(drop=True, inplace=True)
             if metadata_key is None:
                 for i in range(len(thickets_cp)):
-                    thickets_cp[i].metadata.index.set_names(thickets_cp[i].profile_idx_name, inplace=True)
+                    thickets_cp[i].metadata.index.set_names(
+                        thickets_cp[i].profile_idx_name, inplace=True
+                    )
             else:
                 for i in range(len(thickets_cp)):
                     if metadata_key != inner_idx:
@@ -186,9 +188,9 @@ class Ensemble:
             combined_th.profile = [new_mappings[prf] for prf in combined_th.profile]
             profile_mapping_cp = combined_th.profile_mapping.copy()
             for k, v in profile_mapping_cp.items():
-                combined_th.profile_mapping[
-                    new_mappings[k]
-                ] = combined_th.profile_mapping.pop(k)
+                combined_th.profile_mapping[new_mappings[k]] = (
+                    combined_th.profile_mapping.pop(k)
+                )
             combined_th.performance_cols = helpers._get_perf_columns(
                 combined_th.dataframe
             )
@@ -228,7 +230,9 @@ class Ensemble:
                         "new_profiles", append=True, inplace=True
                     )
                     thickets_cp[i].dataframe.index.rename(
-                        thickets_cp[i].profile_idx_name, level="new_profiles", inplace=True
+                        thickets_cp[i].profile_idx_name,
+                        level="new_profiles",
+                        inplace=True,
                     )
             else:  # Change second-level index to be from metadata's "metadata_key" column
                 for i in range(len(thickets_cp)):

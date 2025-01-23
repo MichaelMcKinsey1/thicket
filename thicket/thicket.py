@@ -1580,7 +1580,9 @@ class Thicket(GraphFrame):
             # table
             profile_id = df.index.values.tolist()
             sub_thicket.dataframe = sub_thicket.dataframe[
-                sub_thicket.dataframe.index.get_level_values(self.profile_idx_name).isin(profile_id)
+                sub_thicket.dataframe.index.get_level_values(
+                    self.profile_idx_name
+                ).isin(profile_id)
             ]
 
             # clear the aggregated statistics table for current unique group
@@ -1646,7 +1648,9 @@ class Thicket(GraphFrame):
             raise ValueError("Invalid profile: {}".format(profile))
         df_for_profile = None
         if profile is None:
-            df_for_profile = self.dataframe.reset_index(level=self.profile_idx_name, drop=True)
+            df_for_profile = self.dataframe.reset_index(
+                level=self.profile_idx_name, drop=True
+            )
         else:
             df_for_profile = self.dataframe.xs(
                 profile, level=self.profile_idx_name, drop_level=True
