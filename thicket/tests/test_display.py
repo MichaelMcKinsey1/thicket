@@ -11,8 +11,8 @@ import thicket as th
 
 seaborn_avail = True
 try:
-    import seaborn as sns
-except:
+    import seaborn  # noqa: F401
+except ModuleNotFoundError:
     seaborn_avail = False
 
 if not seaborn_avail:
