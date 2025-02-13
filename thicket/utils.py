@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-from collections import OrderedDict, defaultdict
+from collections import Counter, OrderedDict, defaultdict
 import warnings
 
 import numpy as np
@@ -72,10 +72,11 @@ def validate_dataframe(df):
         """Check for duplicate values in the innermost indices."""
         for node in set(df.index.get_level_values("node")):
             inner_idx_values = sorted(df.loc[node].index.tolist())
-            inner_idx_values_set = sorted(list(set(inner_idx_values)))
-            if inner_idx_values != inner_idx_values_set:
+            counts = Counter(inner_idx_values)
+            duplicates = [item for item, count in counts.items() if count > 1]
+            if len(duplicates) > 0:
                 raise DuplicateIndexError(
-                    f"Duplicate index {set(inner_idx_values)} found in DataFrame index."
+                    f"Duplicate indices found in DataFrame index.\n\t{duplicates}"
                 )
 
     def _check_missing_hnid(df):
