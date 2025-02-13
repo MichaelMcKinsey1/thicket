@@ -9,6 +9,15 @@ import pytest
 
 import thicket as th
 
+seaborn_avail = True
+try:
+    import seaborn  # noqa: F401
+except ModuleNotFoundError:
+    seaborn_avail = False
+
+if not seaborn_avail:
+    pytest.skip("seaborn package not available", allow_module_level=True)
+
 
 def test_display_histogram(rajaperf_seq_O3_1M_cali, intersection, fill_perfdata):
     tk = th.Thicket.from_caliperreader(
