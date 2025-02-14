@@ -63,6 +63,7 @@ class Thicket(GraphFrame):
         metadata={},
         performance_cols=None,
         profile=None,
+        profile_idx_name="profile",
         profile_mapping=None,
         statsframe=None,
         statsframe_ops_cache=None,
@@ -81,6 +82,7 @@ class Thicket(GraphFrame):
             performance_cols (list): list of numeric columns within the performance
                 dataframe
             profile (list): list of hashed profile strings
+            profile_idx_name (str): name of the profile index in the dataframe
             profile_mapping (dict): mapping of hashed profile strings to original strings
             statsframe (DataFrame): pandas DataFrame indexed by Nodes from the graph
         """
@@ -88,6 +90,7 @@ class Thicket(GraphFrame):
             graph, dataframe, exc_metrics, inc_metrics, default_metric, metadata
         )
         self.profile = profile
+        self.profile_idx_name = profile_idx_name
         self.profile_mapping = profile_mapping
         if statsframe is None:
             self.statsframe = GraphFrame(
@@ -202,12 +205,12 @@ class Thicket(GraphFrame):
             temp_meta = {}
             temp_meta[hash_arg] = th.metadata
             th.metadata = pd.DataFrame.from_dict(temp_meta, orient="index")
-            th.metadata.index.set_names("profile", inplace=True)
+            th.metadata.index.set_names(th.profile_idx_name, inplace=True)
 
             # Add profile to dataframe index
-            th.dataframe["profile"] = hash_arg
+            th.dataframe[th.profile_idx_name] = hash_arg
             index_names = list(th.dataframe.index.names)
-            index_names.insert(1, "profile")
+            index_names.insert(1, th.profile_idx_name)
             th.dataframe.reset_index(inplace=True)
             th.dataframe.set_index(index_names, inplace=True)
 
@@ -592,15 +595,16 @@ class Thicket(GraphFrame):
             dataframe=gf.dataframe,
             exc_metrics=thicket_dict["exclusive_metrics"],
             inc_metrics=thicket_dict["inclusive_metrics"],
-            profile=thicket_dict["profile"],
+            profile=thicket_dict[thicket_dict["profile_idx_name"]],
+            profile_idx_name=thicket_dict["profile_idx_name"],
             profile_mapping=thicket_dict["profile_mapping"],
         )
 
         if "metadata" in thicket_dict:
             mf = pd.DataFrame(thicket_dict["metadata"])
-            mf.set_index(mf["profile"], inplace=True)
-            if "profile" in mf.columns:
-                mf = mf.drop(columns=["profile"])
+            mf.set_index(mf[th.profile_idx_name], inplace=True)
+            if th.profile_idx_name in mf.columns:
+                mf = mf.drop(columns=[th.profile_idx_name])
             th.metadata = mf
 
         # catch condition where there are no stats
@@ -689,10 +693,10 @@ class Thicket(GraphFrame):
             agg_data = pd.DataFrame.from_records(rep_data).agg(_rep_agg_func)
             # Add node and profile
             agg_data["node"] = node_profile[0]
-            agg_data["profile"] = node_profile[1]
+            agg_data[self.profile_idx_name] = node_profile[1]
             # Append to main df
             ncu_df = pd.concat([ncu_df, pd.DataFrame([agg_data])], ignore_index=True)
-        ncu_df = ncu_df.set_index(["node", "profile"])
+        ncu_df = ncu_df.set_index(["node", self.profile_idx_name])
 
         # Apply chosen metrics
         if chosen_metrics:
@@ -717,7 +721,7 @@ class Thicket(GraphFrame):
         )
 
     def metadata_columns_to_perfdata(
-        self, metadata_columns, overwrite=False, drop=False, join_key="profile"
+        self, metadata_columns, overwrite=False, drop=False, join_key=None
     ):
         """Add columns from the metadata table to the performance data table. Joins on join_key, an index or column that is present in both tables.
 
@@ -725,8 +729,11 @@ class Thicket(GraphFrame):
             metadata_columns (list or str): List of the columns from the metadata table
             overwrite (bool): Determines overriding behavior in performance data table
             drop (bool): Whether to drop the columns from the metadata table afterwards
-            join_key (str): Name of the index/column to join on if not 'profile'
+            join_key (str): Name of the index/column to join on if not self.profile_idx_name
         """
+        if join_key is None:
+            join_key = self.profile_idx_name
+
         # Raise error if join_key is not present in both tables
         if not (
             join_key in self.dataframe.reset_index()
@@ -1147,7 +1154,7 @@ class Thicket(GraphFrame):
         # Pre-check of data structures
         for tk in tk_list:
             verify_thicket_structures(
-                tk.dataframe, index=["node", "profile"]
+                tk.dataframe, index=["node", tk.profile_idx_name]
             )  # Required for deepcopy operation
             verify_thicket_structures(
                 tk.statsframe.dataframe, index=["node"]
@@ -1258,7 +1265,8 @@ class Thicket(GraphFrame):
 
         jsonified_thicket["inclusive_metrics"] = self.inc_metrics
         jsonified_thicket["exclusive_metrics"] = self.exc_metrics
-        jsonified_thicket["profile"] = self.profile
+        jsonified_thicket[self.profile_idx_name] = self.profile
+        jsonified_thicket["profile_idx_name"] = self.profile_idx_name
         jsonified_thicket["profile_mapping"] = self.profile_mapping
 
         return json.dumps(jsonified_thicket)
@@ -1574,7 +1582,9 @@ class Thicket(GraphFrame):
             # table
             profile_id = df.index.values.tolist()
             sub_thicket.dataframe = sub_thicket.dataframe[
-                sub_thicket.dataframe.index.get_level_values("profile").isin(profile_id)
+                sub_thicket.dataframe.index.get_level_values(
+                    self.profile_idx_name
+                ).isin(profile_id)
             ]
 
             # clear the aggregated statistics table for current unique group
@@ -1631,7 +1641,7 @@ class Thicket(GraphFrame):
     def move_metrics_to_statsframe(self, metric_columns, profile=None, override=False):
         if not isinstance(metric_columns, (list, tuple)):
             raise TypeError("'metric_columns' must be a list or tuple")
-        profile_list = self.dataframe.index.unique(level="profile").tolist()
+        profile_list = self.dataframe.index.unique(level=self.profile_idx_name).tolist()
         if profile is None and len(profile_list) != 1:
             raise ValueError(
                 "Cannot move a metric to statsframe when there are multiple profiles. Set the 'profile' argument to the profile you want to move"
@@ -1640,10 +1650,12 @@ class Thicket(GraphFrame):
             raise ValueError("Invalid profile: {}".format(profile))
         df_for_profile = None
         if profile is None:
-            df_for_profile = self.dataframe.reset_index(level="profile", drop=True)
+            df_for_profile = self.dataframe.reset_index(
+                level=self.profile_idx_name, drop=True
+            )
         else:
             df_for_profile = self.dataframe.xs(
-                profile, level="profile", drop_level=True
+                profile, level=self.profile_idx_name, drop_level=True
             )
         new_statsframe_df = self.statsframe.dataframe.copy(deep=True)
         for c in metric_columns:

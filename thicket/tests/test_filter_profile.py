@@ -20,7 +20,7 @@ def test_filter_profile(rajaperf_cali_1trial):
         tk_filt.profile,
         tk_filt.profile_mapping.keys(),
         tk_filt.metadata.index,
-        tk_filt.dataframe.index.get_level_values("profile"),
+        tk_filt.dataframe.index.get_level_values(tk_filt.profile_idx_name),
     ]:
         assert all([prof not in component for prof in rm_profs])
         assert all([prof in component for prof in keep_profs])

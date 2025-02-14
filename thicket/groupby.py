@@ -97,7 +97,7 @@ class GroupBy(dict):
             tk_c.dataframe.reset_index()
             .drop(list(tk_c.dataframe.columns) + ["node"], axis=1)
             .drop_duplicates()
-            .set_index("profile")
+            .set_index(tk_c.profile_idx_name)
         )
         if (
             len(new_profile_label_mapping_df.columns) > 1
@@ -120,11 +120,11 @@ class GroupBy(dict):
         tk_c.profile_mapping = new_profile_mapping
         # Aggregate metadata
         tk_c.metadata = tk_c.metadata.reset_index()
-        tk_c.metadata["profile"] = tk_c.metadata["profile"].map(
+        tk_c.metadata[tk_c.profile_idx_name] = tk_c.metadata[tk_c.profile_idx_name].map(
             new_profile_label_mapping
         )
-        tk_c.metadata = tk_c.metadata.set_index("profile")
-        tk_c.metadata = tk_c.metadata.groupby("profile").agg(_agg_rows)
+        tk_c.metadata = tk_c.metadata.set_index(tk_c.profile_idx_name)
+        tk_c.metadata = tk_c.metadata.groupby(tk_c.profile_idx_name).agg(_agg_rows)
 
         def _compute_agg_df(col_names, functions, _tk, _agg_cols, _perf_indices):
             agg_df = _tk.dataframe[_agg_cols].groupby(_perf_indices).agg(functions[0])

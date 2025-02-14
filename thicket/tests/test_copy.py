@@ -60,7 +60,7 @@ def test_copy(rajaperf_seq_O3_1M_cali, intersection, fill_perfdata):
 
     # Shallow copy of data
     node = other.dataframe.index.get_level_values("node")[0]
-    profile = other.dataframe.index.get_level_values("profile")[0]
+    profile = other.dataframe.index.get_level_values(other.profile_idx_name)[0]
     other.dataframe.loc[(node, profile), "nid"] = -1
     assert (
         other.dataframe.loc[(node, profile), "nid"]

@@ -111,7 +111,7 @@ def test_metadata_columns_to_perfdata(
     assert "variant" not in tkc2.metadata
 
     # Check error raise for join_key
-    tkc2.dataframe = tkc2.dataframe.reset_index(level="profile", drop=True)
+    tkc2.dataframe = tkc2.dataframe.reset_index(level=tkc2.profile_idx_name, drop=True)
     with pytest.raises(KeyError, match="'profile' must be present"):
         tkc2.metadata_columns_to_perfdata("tuning", overwrite=True)
 
@@ -198,8 +198,8 @@ def test_thicketize_graphframe(rajaperf_seq_O3_1M_cali):
     assert ht1.graph == th1.graph
 
     # Check dataframes are equivalent when profile level is dropped
-    th1.dataframe.reset_index(level="profile", inplace=True)
-    th1.dataframe.drop("profile", axis=1, inplace=True)
+    th1.dataframe.reset_index(level=th1.profile_idx_name, inplace=True)
+    th1.dataframe.drop(th1.profile_idx_name, axis=1, inplace=True)
     assert ht1.dataframe.equals(th1.dataframe)
 
 
@@ -217,3 +217,16 @@ def test_unique_metadata_base_cuda(
     assert res["systype_build"] == ["blueos_3_ppc64le_ib_p9"]
     assert res["variant"] == ["Base_CUDA"]
     assert res["tuning"] == ["block_128"]
+
+
+def test_different_profile_idx_name():
+    th = Thicket(
+        graph=ht.graph.Graph(roots=[]),
+        dataframe=pd.DataFrame(
+            index=pd.MultiIndex(
+                names=["node", "profile2"], levels=[[], []], codes=[[], []]
+            )
+        ),
+        profile_idx_name="profile2",
+    )
+    assert th.profile_idx_name == "profile2"

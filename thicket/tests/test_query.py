@@ -48,7 +48,7 @@ def check_query(th, hnids, query):
         th_df_profiles.unique().to_list()
     )
 
-    check_identity(th, filt_th, "default_metric")
+    check_identity(th, filt_th, ["default_metric", "profile_idx_name"])
 
 
 def test_query(rajaperf_cuda_block128_1M_cali, intersection, fill_perfdata):

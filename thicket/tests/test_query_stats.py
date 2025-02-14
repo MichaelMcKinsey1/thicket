@@ -58,7 +58,7 @@ def check_query(th_x, hnids, query):
     assert all([n in pd.unique(filt_th_df_nodes) for n in sframe_nodes])
     assert sorted(pd.unique(filt_th_df_nodes)) == sorted(pd.unique(sframe_nodes))
 
-    check_identity(th_x, filt_th, "default_metric")
+    check_identity(th_x, filt_th, ["default_metric", "profile_idx_name"])
 
 
 def test_query_stats(rajaperf_cuda_block128_1M_cali, intersection, fill_perfdata):
