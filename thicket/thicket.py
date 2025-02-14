@@ -1855,6 +1855,10 @@ class Thicket(GraphFrame):
             raise KeyError(
                 f"Metadata key '{metadata_key}' not found in metadata table."
             )
+        elif not self.metadata[metadata_key].is_unique:
+            raise ValueError(
+                f"Values in metadata column '{metadata_key}' are not unique."
+            )
 
         new_thicket = self
         if not inplace:
